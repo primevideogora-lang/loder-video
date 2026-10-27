@@ -5,13 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#000000">
 <title>LODER VIDEO — Video Bağlantı Analizi</title>
+<meta name="description" content="LODER VIDEO — video bağlantısı analiz aracı.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23000'/%3E%3Crect x='12' y='12' width='40' height='40' rx='11' fill='%23a855f7'/%3E%3Cpath d='M28 23v18l15-9z' fill='%23fff'/%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23000'/%3E%3Crect x='12' y='12' width='40' height='40' rx='11' fill='%23a855f7'/%3E%3Cpath d='M28 23v18l15-9z' fill='%23fff'/%3E%3C/svg%3E">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="LODER">
-<meta name="description" content="LODER VIDEO — video bağlantısı analiz aracı.">
 <style>
 :root{--siyah:#000;--yuzey:#0a0a0f;--yuzey-2:#111119;--cizgi:rgba(255,255,255,.08);--metin:#f2f2f7;--soluk:#8b8ba0;--mor:#a855f7;--mor-koyu:#7c3aed;--mavi:#22d3ee;--mavi-koyu:#0ea5e9;--kirmizi:#ff5c7a;--yesil:#34d399;--sari:#fbbf24;--r:16px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -27,13 +25,13 @@ header{padding:28px 0 20px;text-align:center}
 .slogan{margin:8px 0 0;color:var(--soluk);font-size:.82rem}
 .platformlar{display:flex;gap:8px;justify-content:center;margin-top:18px;flex-wrap:wrap}
 .platform{display:flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid var(--cizgi);border-radius:999px;background:rgba(255,255,255,.03);font-size:.74rem;font-weight:600;color:var(--soluk);transition:all .25s}
-.platform.aktif{color:var(--metin);border-color:rgba(168,85,247,.5);box-shadow:0 0 16px rgba(168,85,247,.22)}
+.platform.aktif{color:var(--metin);border-color:rgba(168,85,247,.5)}
 .platform svg{width:15px;height:15px}
 .kart{background:var(--yuzey);border:1px solid var(--cizgi);border-radius:var(--r);padding:18px;margin-top:22px}
 label.alan{display:block;font-size:.8rem;font-weight:600;color:var(--soluk);margin-bottom:8px}
 .giris-sarmal{position:relative}
 textarea#baglanti{width:100%;min-height:76px;resize:none;background:var(--yuzey-2);border:1px solid var(--cizgi);border-radius:12px;color:var(--metin);font-family:inherit;font-size:16px;padding:14px 44px 14px 14px}
-textarea#baglanti:focus{outline:none;border-color:rgba(168,85,247,.6);box-shadow:0 0 0 3px rgba(168,85,247,.13)}
+textarea#baglanti:focus{outline:none;border-color:rgba(168,85,247,.6)}
 .temizle{position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;border:1px solid var(--cizgi);background:rgba(255,255,255,.04);color:var(--soluk);font-size:1rem;cursor:pointer;display:none;place-items:center}
 .temizle.gorunur{display:grid}
 .dugme{width:100%;margin-top:14px;padding:16px;border:none;border-radius:13px;font-family:inherit;font-size:1rem;font-weight:700;color:#fff;cursor:pointer;background:linear-gradient(95deg,var(--mor-koyu),var(--mavi-koyu));box-shadow:0 0 24px rgba(124,58,237,.35)}
@@ -41,12 +39,10 @@ textarea#baglanti:focus{outline:none;border-color:rgba(168,85,247,.6);box-shadow
 .ornek{margin-top:12px;text-align:center;font-size:.74rem;color:var(--soluk)}
 .ornek button{background:none;border:none;color:var(--mavi);font-family:inherit;font-size:.74rem;font-weight:600;cursor:pointer;text-decoration:underline}
 #sonuc{margin-top:22px;display:none}
-#sonuc.gorunur{display:block;animation:belir .35s ease}
-@keyframes belir{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#sonuc.gorunur{display:block}
 .sonuc-kart{background:var(--yuzey);border:1px solid var(--cizgi);border-radius:var(--r);overflow:hidden}
 .sonuc-ust{padding:14px 16px;border-bottom:1px solid var(--cizgi)}
 .rozet{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;font-size:.78rem;font-weight:700;color:var(--mavi);border:1px solid rgba(34,211,238,.42);background:rgba(34,211,238,.08)}
-.rozet svg{width:14px;height:14px}
 .onizleme{display:flex;gap:14px;padding:16px;align-items:flex-start}
 .kucuk-resim,.kucuk-resim-yok{width:112px;height:72px;flex:0 0 auto;border-radius:10px;background:var(--yuzey-2);border:1px solid var(--cizgi);object-fit:cover}
 .kucuk-resim-yok{border-style:dashed;display:grid;place-items:center;font-size:.62rem;color:var(--soluk);text-align:center;padding:6px}
@@ -80,7 +76,6 @@ textarea#baglanti:focus{outline:none;border-color:rgba(168,85,247,.6);box-shadow
 .bilgi-serit p{margin:0 0 7px;font-size:.76rem;color:#9d9db4}
 .bilgi-serit b{color:#c9c9dd}
 footer{text-align:center;padding:24px 0 10px;font-size:.68rem;color:#4e4e63}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -151,7 +146,7 @@ function vurgula(p){pl.forEach(function(e){e.classList.toggle('aktif',e.getAttri
 function meta(e,v){var b=(v===null||v===undefined||v==='');return'<div class="meta-satir"><div class="meta-etiket">'+kacir(e)+'</div><div class="meta-deger'+(b?' yok':'')+'">'+(b?'Alınamadı':kacir(v))+'</div></div>'}
 var TUR={video:'Video',reel:'Reels',gonderi:'Gönderi',igtv:'IGTV',fotograf:'Fotoğraf gönderisi',kisa_link:'Kısa bağlantı',dosya:'Medya dosyası'};
 function goster(a){
-if(!a.ok){vurgula(null);sonuc.innerHTML='<div class="hata-kutu"><div class="hata-baslik">⚠ Bağlantı analiz edilemedi</div><p class="hata-mesaj">'+kacir(a.mesaj)+'</p>'+(a.cozum?'<p class="hata-cozum"><b>Çözüm:</b> '+kacir(a.cozum)+'</p>':'')+'</div>';sonuc.classList.add('gorunur');return}
+if(!a.ok){vurgula(null);sonuc.innerHTML='<div class="hata-kutu"><div class="hata-baslik">Bağlantı analiz edilemedi</div><p class="hata-mesaj">'+kacir(a.mesaj)+'</p>'+(a.cozum?'<p class="hata-cozum"><b>Çözüm:</b> '+kacir(a.cozum)+'</p>':'')+'</div>';sonuc.classList.add('gorunur');return}
 var img=a.kucukResim?'<img class="kucuk-resim" src="'+kacir(a.kucukResim)+'" alt="Küçük resim" referrerpolicy="no-referrer" onerror="this.outerHTML=\'<div class=kucuk-resim-yok>Küçük resim yüklenemedi</div>\'">':'<div class="kucuk-resim-yok">Küçük resim mevcut değil</div>';
 var h='<div class="sonuc-kart"><div class="sonuc-ust"><span class="rozet">✓ '+kacir(a.platformAdi)+'</span></div>';
 h+='<div class="onizleme">'+img+'<div class="baslik-alani">'+(a.baslik?'<p class="video-baslik">'+kacir(a.baslik)+'</p>':'<p class="video-baslik yok">Başlık alınamadı</p>')+'<a class="kaynak-link" href="'+kacir(a.link)+'" target="_blank" rel="noopener noreferrer">'+kacir(a.link)+'</a></div></div>';
