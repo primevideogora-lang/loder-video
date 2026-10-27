@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#000000">
 <title>LODER VIDEO — Video Bağlantı Analizi</title>
-<meta name="description" content="LODER VIDEO — video bağlantısı analiz aracı.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23000'/%3E%3Crect x='12' y='12' width='40' height='40' rx='11' fill='%23a855f7'/%3E%3Cpath d='M28 23v18l15-9z' fill='%23fff'/%3E%3C/svg%3E">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="LODER">
+<meta name="description" content="LODER VIDEO — video bağlantısı analiz aracı.">
 <style>
 :root{--siyah:#000;--yuzey:#0a0a0f;--yuzey-2:#111119;--cizgi:rgba(255,255,255,.08);--metin:#f2f2f7;--soluk:#8b8ba0;--mor:#a855f7;--mor-koyu:#7c3aed;--mavi:#22d3ee;--mavi-koyu:#0ea5e9;--kirmizi:#ff5c7a;--yesil:#34d399;--sari:#fbbf24;--r:16px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -107,64 +108,60 @@ footer{text-align:center;padding:24px 0 10px;font-size:.68rem;color:#4e4e63}
 <section class="bilgi-serit">
 <h3>Bu sürüm ne yapıyor</h3>
 <p><b>Gerçek:</b> Bağlantı algılama, platform tespiti, URL doğrulaması ve Türkçe hata yönetimi.</p>
-<p><b>Gerçek:</b> Doğrudan MP4/WebM bağlantılarında tarayıcı indirmesi denenir; hata çıkarsa gerçek hata gösterilir.</p>
-<p><b>Yapılandırılmamış:</b> YouTube, TikTok ve Instagram için video bilgisi ve indirme. Resmî platform API'leri üçüncü taraf indirmeye izin vermiyor. Uydurma bilgi gösterilmez.</p>
+<p><b>Gerçek:</b> oEmbed katmanı yüklüyse başlık, yayıncı ve küçük resim gerçek kaynaktan alınır.</p>
+<p><b>Gerçek:</b> Doğrudan MP4/WebM bağlantılarında tarayıcı indirmesi denenir.</p>
+<p><b>Sınır:</b> Süre, çözünürlük ve video indirme oEmbed servislerinde yoktur; uydurulmaz.</p>
 </section>
 </main>
 <footer>LODER VIDEO · Bağlantı analiz aracı<br>Filigran kaldırma, erişim kontrolü aşma ve izinsiz indirme desteklenmez.</footer>
 </div>
+<script src="loder-core.js"></script>
+<script src="oembed-client.js"></script>
 <script>
 (function(){'use strict';
-var ENGELLI=['localhost','localhost.localdomain','ip6-localhost','ip6-loopback','metadata','instance-data','metadata.google.internal','metadata.goog'];
-var ONEK=['10.','127.','169.254.','192.168.','0.','172.16.','172.17.','172.18.','172.19.','172.20.','172.21.','172.22.','172.23.','172.24.','172.25.','172.26.','172.27.','172.28.','172.29.','172.30.','172.31.'];
-var MEDYA=['.mp4','.webm','.m4v','.mov','.ogv'];
-var AD={youtube:'YouTube',tiktok:'TikTok',instagram:'Instagram',direct:'Doğrudan Medya'};
-var YTID=/^[A-Za-z0-9_-]{11}$/;
-function hata(k,m,c){return{ok:false,kod:k,mesaj:m,cozum:c||null}}
-function guvenli(h){if(!h)return false;h=h.toLowerCase().replace(/^\[|\]$/g,'');if(ENGELLI.indexOf(h)!==-1)return false;if(h.indexOf('.')===-1)return false;if(/\.local$|\.localhost$/.test(h))return false;for(var i=0;i<ONEK.length;i++)if(h.indexOf(ONEK[i])===0)return false;if(/^(::1|fc|fd|fe80)/.test(h))return false;if(/^(0x[0-9a-f]+|\d{8,})$/i.test(h))return false;return true}
-function linkCikar(g){if(typeof g!=='string')return'';var t=g.trim().replace(/^[\s"'<]+|[\s"'>]+$/g,'');if(!t)return'';var m=t.match(/https?:\/\/[^\s<>"')]+/i);return m?m[0]:t}
-function hostEsit(h,l){for(var i=0;i<l.length;i++){var d=l[i];if(h===d||h.slice(-(d.length+1))==='.'+d)return true}return false}
-function ytId(u){var h=u.hostname.toLowerCase(),y=u.pathname;if(hostEsit(h,['youtu.be'])){var k=y.replace(/^\/+/,'').split('/')[0];return YTID.test(k)?k:null}var v=u.searchParams.get('v');if(v&&YTID.test(v))return v;var o=['/embed/','/v/','/shorts/','/live/','/e/'];for(var i=0;i<o.length;i++)if(y.indexOf(o[i])===0){var id=y.slice(o[i].length).split('/')[0];if(YTID.test(id))return id}return null}
-function medyaMi(y){var t=String(y||'').toLowerCase();for(var i=0;i<MEDYA.length;i++)if(t.slice(-MEDYA[i].length)===MEDYA[i])return MEDYA[i];return null}
-function algila(u){var h=u.hostname.toLowerCase(),y=u.pathname;
-if(hostEsit(h,['youtube.com','youtu.be','youtube-nocookie.com'])){var v=ytId(u);if(v)return{ok:true,platform:'youtube',videoId:v,tur:'video'};return hata('VIDEO_DEGIL','YouTube bağlantısında video kimliği bulunamadı.','Bir YouTube videosunun bağlantısının tamamını yapıştırın.')}
-if(hostEsit(h,['tiktok.com'])){if(h==='vt.tiktok.com'||h==='vm.tiktok.com'){var k=y.replace(/^\/+|\/+$/g,'');if(!/^[A-Za-z0-9]{6,20}$/.test(k))return hata('GECERSIZ_KISA_LINK','TikTok kısa bağlantısı tanınamadı.','Bağlantıyı TikTok paylaş menüsünden yeniden kopyalayın.');return{ok:true,platform:'tiktok',videoId:k,tur:'kisa_link',kisaLink:true}}var m=y.match(/\/video\/(\d{6,25})/);if(m)return{ok:true,platform:'tiktok',videoId:m[1],tur:'video'};var p=y.match(/\/photo\/(\d{6,25})/);if(p)return{ok:true,platform:'tiktok',videoId:p[1],tur:'fotograf'};return hata('VIDEO_DEGIL','TikTok bağlantısında video numarası bulunamadı.','Video bağlantısının tamamını kopyalayın.')}
-if(hostEsit(h,['instagram.com','instagr.am'])){var g=y.match(/^\/(reel|reels|p|tv)\/([A-Za-z0-9_-]{5,20})/i);if(g){var t=g[1].toLowerCase();return{ok:true,platform:'instagram',videoId:g[2],tur:(t==='reel'||t==='reels')?'reel':(t==='tv'?'igtv':'gonderi')}}return hata('VIDEO_DEGIL','Instagram bağlantısında gönderi veya Reels adresi bulunamadı.','Bir Reels veya gönderi bağlantısı yapıştırın.')}
-if(medyaMi(y))return{ok:true,platform:'direct',videoId:null,tur:'dosya'};
-return hata('DESTEKLENMEYEN_PLATFORM','Bu platform desteklenmiyor: '+h,'Yalnızca TikTok, YouTube, Instagram ve doğrudan MP4/WebM bağlantıları desteklenir.')}
-function analizEt(girdi){var l=linkCikar(girdi);if(!l)return hata('BOS','Bağlantı alanı boş.','Bir TikTok, YouTube, Instagram veya doğrudan video bağlantısı yapıştırın.');if(!/^[a-z][a-z0-9+.-]*:/i.test(l))l='https://'+l;var u;try{u=new URL(l)}catch(e){return hata('GECERSIZ_URL','Bu geçerli bir bağlantı değil.','Bağlantıyı tekrar kopyalayıp deneyin.')}if(u.protocol!=='http:'&&u.protocol!=='https:')return hata('GECERSIZ_SEMA','Bu bağlantı türü desteklenmiyor.','Yalnızca http ve https bağlantıları kabul edilir.');if(!guvenli(u.hostname))return hata('GUVENSIZ_HEDEF','Bu adres güvenlik nedeniyle reddedildi.','Yerel ağ ve özel adresler engellenir.');
-var d=algila(u);if(!d.ok)return d;
-var s={ok:true,platform:d.platform,platformAdi:AD[d.platform],domain:u.hostname.replace(/^www\./,''),link:u.href,videoId:d.videoId,tur:d.tur,baslik:null,kucukResim:null,sure:null,cozunurluk:null,notlar:[]};
-if(d.platform==='direct'){try{s.baslik=decodeURIComponent(u.pathname.split('/').pop())||'video'}catch(e){s.baslik='video'}s.notlar.push('Bu bağlantı bir medya dosyasını doğrudan gösteriyor; indirme tarayıcı üzerinden denenebilir.');s.notlar.push('Sunucu CORS izni vermiyorsa tarayıcı indirmeyi engeller; bu durumda gerçek hata gösterilir.')}
-else if(d.platform==='youtube'){s.kucukResim='https://i.ytimg.com/vi/'+d.videoId+'/hqdefault.jpg';s.notlar.push('Küçük resim YouTube genel resim adresinden gelir; erişilemezse gösterilmez.');s.notlar.push('Başlık, süre ve çözünürlük için YouTube Data API anahtarı gerekir — yapılandırılmadı.')}
-else if(d.platform==='tiktok'){s.notlar.push(d.kisaLink?'TikTok kısa bağlantısı algılandı. Gerçek video kimliği yönlendirme çözümlenince elde edilir — bu adım sunucu gerektirir.':'Video numarası bağlantıdan okundu.');s.notlar.push('Başlık, küçük resim ve süre için TikTok API entegrasyonu gerekir — yapılandırılmadı.')}
-else{s.notlar.push('Instagram gönderi kodu bağlantıdan okundu.');s.notlar.push('Başlık, küçük resim ve süre için Instagram Graph API entegrasyonu gerekir — yapılandırılmadı.')}
-return s}
-function kacir(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-var alan=document.getElementById('baglanti'),sonuc=document.getElementById('sonuc'),tml=document.getElementById('temizle'),pl=document.querySelectorAll('.platform'),mesgul=false;
+var C=window.LoderCore;
+var alan=document.getElementById('baglanti'),sonucKutu=document.getElementById('sonuc'),tml=document.getElementById('temizle'),pl=document.querySelectorAll('.platform'),mesgul=false,sonAnaliz=null,aktifIndirme=null;
+function kacir(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function ikon(p){var y={youtube:'M23 12s0-3.85-.49-5.7a2.98 2.98 0 0 0-2.1-2.1C18.56 3.7 12 3.7 12 3.7s-6.56 0-8.41.5a2.98 2.98 0 0 0-2.1 2.1C1 8.15 1 12 1 12s0 3.85.49 5.7a2.98 2.98 0 0 0 2.1 2.1c1.85.5 8.41.5 8.41.5s6.56 0 8.41-.5a2.98 2.98 0 0 0 2.1-2.1C23 15.85 23 12 23 12zM9.75 15.02V8.98L15.5 12l-5.75 3.02z',tiktok:'M16.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 1 1-1.84-2.48V9.77a5.72 5.72 0 1 0 4.93 5.66V8.87a7.35 7.35 0 0 0 4.3 1.38V7.16a4.28 4.28 0 0 1-3.24-1.34z',instagram:'M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.7 3.7 0 0 1-1.38-.9 3.7 3.7 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23-.06-1.27-.07-1.65-.07-4.85s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41 1.27-.06 1.65-.07 4.85-.07M12 0C8.74 0 8.33.01 7.05.07 5.78.13 4.9.33 4.14.63c-.79.3-1.46.72-2.12 1.38A5.9 5.9 0 0 0 .63 4.14C.33 4.9.13 5.78.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.27.26 2.15.56 2.91.3.79.72 1.46 1.38 2.12.66.66 1.33 1.08 2.12 1.38.76.3 1.64.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.27-.06 2.15-.26 2.91-.56a5.9 5.9 0 0 0 2.12-1.38 5.9 5.9 0 0 0 1.38-2.12c.3-.76.5-1.64.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.27-.26-2.15-.56-2.91a5.9 5.9 0 0 0-1.38-2.12A5.9 5.9 0 0 0 19.86.63c-.76-.3-1.64-.5-2.91-.56C15.67.01 15.26 0 12 0zm0 5.84a6.16 6.16 0 1 0 0 12.32 6.16 6.16 0 0 0 0-12.32zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm7.85-10.4a1.44 1.44 0 1 1-2.88 0 1.44 1.44 0 0 1 2.88 0z',direct:'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z'};return '<svg viewBox="0 0 24 24" fill="currentColor"><path d="'+(y[p]||y.direct)+'"/></svg>'}
 function vurgula(p){pl.forEach(function(e){e.classList.toggle('aktif',e.getAttribute('data-p')===p)})}
-function meta(e,v){var b=(v===null||v===undefined||v==='');return'<div class="meta-satir"><div class="meta-etiket">'+kacir(e)+'</div><div class="meta-deger'+(b?' yok':'')+'">'+(b?'Alınamadı':kacir(v))+'</div></div>'}
+function metaSatir(e,v){var b=(v===null||v===undefined||v==='');return '<div class="meta-satir"><div class="meta-etiket">'+kacir(e)+'</div><div class="meta-deger'+(b?' yok':'')+'">'+(b?'Alınamadı':kacir(v))+'</div></div>'}
 var TUR={video:'Video',reel:'Reels',gonderi:'Gönderi',igtv:'IGTV',fotograf:'Fotoğraf gönderisi',kisa_link:'Kısa bağlantı',dosya:'Medya dosyası'};
-function goster(a){
-if(!a.ok){vurgula(null);sonuc.innerHTML='<div class="hata-kutu"><div class="hata-baslik">Bağlantı analiz edilemedi</div><p class="hata-mesaj">'+kacir(a.mesaj)+'</p>'+(a.cozum?'<p class="hata-cozum"><b>Çözüm:</b> '+kacir(a.cozum)+'</p>':'')+'</div>';sonuc.classList.add('gorunur');return}
-var img=a.kucukResim?'<img class="kucuk-resim" src="'+kacir(a.kucukResim)+'" alt="Küçük resim" referrerpolicy="no-referrer" onerror="this.outerHTML=\'<div class=kucuk-resim-yok>Küçük resim yüklenemedi</div>\'">':'<div class="kucuk-resim-yok">Küçük resim mevcut değil</div>';
-var h='<div class="sonuc-kart"><div class="sonuc-ust"><span class="rozet">✓ '+kacir(a.platformAdi)+'</span></div>';
+function hataGoster(a){aktifIndirme=null;vurgula(null);sonucKutu.innerHTML='<div class="hata-kutu"><div class="hata-baslik">Bağlantı analiz edilemedi</div><p class="hata-mesaj">'+kacir(a.mesaj)+'</p>'+(a.cozum?'<p class="hata-cozum"><b>Çözüm:</b> '+kacir(a.cozum)+'</p>':'')+'</div>';sonucKutu.classList.add('gorunur')}
+function basariGoster(a){
+var img=a.kucukResim?'<img class="kucuk-resim" src="'+kacir(a.kucukResim)+'" alt="Küçük resim" referrerpolicy="no-referrer" onerror="this.outerHTML=String.fromCharCode(60)+\'div class=kucuk-resim-yok\u003eKüçük resim yüklenemedi\u003c/div\u003e\'">':'<div class="kucuk-resim-yok">Küçük resim mevcut değil</div>';
+var h='<div class="sonuc-kart"><div class="sonuc-ust"><span class="rozet">'+ikon(a.platform)+kacir(a.platformAdi)+'</span></div>';
 h+='<div class="onizleme">'+img+'<div class="baslik-alani">'+(a.baslik?'<p class="video-baslik">'+kacir(a.baslik)+'</p>':'<p class="video-baslik yok">Başlık alınamadı</p>')+'<a class="kaynak-link" href="'+kacir(a.link)+'" target="_blank" rel="noopener noreferrer">'+kacir(a.link)+'</a></div></div>';
-h+='<div class="meta">'+meta('Platform',a.platformAdi)+meta('Tür',TUR[a.tur]||a.tur)+meta('Süre',a.sure)+meta('Çözünürlük',a.cozunurluk)+meta('Video kimliği',a.videoId)+meta('Alan adı',a.domain)+'</div>';
-h+='<div class="notlar"><h3>Analiz notları</h3>';a.notlar.forEach(function(n){h+='<div class="not">'+kacir(n)+'</div>'});h+='</div><div class="indirme">';
-if(a.platform==='direct'){h+='<button class="indir-dugme" id="indirBtn" type="button">İndir</button><p class="indir-not">Tarayıcı üzerinden doğrudan indirme denenecek.</p>'}
-else{h+='<div class="indir-kapali">İndirme yapılandırılmamış</div><p class="indir-not">'+kacir(a.platformAdi)+' için indirme entegrasyonu bu kurulumda mevcut değil. Resmî platform API\'leri üçüncü taraf video indirmeye izin vermiyor.</p>'}
-h+='<div class="durum" id="durum"></div></div></div>';
-sonuc.innerHTML=h;sonuc.classList.add('gorunur');vurgula(a.platform);
-var b=document.getElementById('indirBtn');if(b)b.addEventListener('click',function(){indir(a)})}
-function durum(t,m,d){var e=document.getElementById('durum');if(!e)return;e.className='durum gorunur '+t;e.innerHTML=(d?'<span class="doner"></span>':'')+'<span>'+kacir(m)+'</span>'}
-function boyut(n){n=Number(n);if(!isFinite(n)||n<0)return'';if(n<1024)return n+' B';if(n<1048576)return(n/1024).toFixed(1)+' KB';return(n/1048576).toFixed(1)+' MB'}
-function indir(a){if(mesgul)return;mesgul=true;durum('bilgi','İndirme isteği gönderiliyor…',true);
-fetch(a.link,{mode:'cors',credentials:'omit'}).then(function(r){if(!r.ok)throw new Error('Sunucu '+r.status+' yanıtı döndürdü');durum('bilgi','İndiriliyor…',true);return r.blob()}).then(function(bl){var u=URL.createObjectURL(bl),l=document.createElement('a');l.href=u;l.download=a.baslik||'video';document.body.appendChild(l);l.click();l.remove();setTimeout(function(){URL.revokeObjectURL(u)},10000);durum('basari','Dosya kaydedildi ('+boyut(bl.size)+').')}).catch(function(e){durum('hata','İndirme başarısız: '+(e&&e.message?e.message:'bilinmeyen hata')+'. Kaynak CORS izni vermiyor olabilir.')}).then(function(){mesgul=false})}
-function calistir(){goster(analizEt(alan.value))}
+h+='<div class="meta">'+metaSatir('Platform',a.platformAdi)+metaSatir('Tür',TUR[a.tur]||a.tur)+metaSatir('Süre',C.sureBicimle(a.sure))+metaSatir('Çözünürlük',a.cozunurluk)+metaSatir('Video kimliği',a.videoId)+metaSatir('Alan adı',a.domain)+'</div>';
+if(a.notlar&&a.notlar.length){h+='<div class="notlar"><h3>Analiz notları</h3>';a.notlar.forEach(function(n){h+='<div class="not">'+kacir(n)+'</div>'});h+='</div>'}
+var d=C.indirmeDurumu(a);h+='<div class="indirme">';
+if(d.aktif){h+='<button class="indir-dugme" id="indirBtn" type="button">'+kacir(d.etiket)+'</button>'}else{h+='<div class="indir-kapali">'+kacir(d.etiket)+'</div>'}
+h+='<p class="indir-not">'+kacir(d.aciklama)+'</p><div class="durum" id="durum"></div></div></div>';
+sonucKutu.innerHTML=h;sonucKutu.classList.add('gorunur');vurgula(a.platform);
+var b=document.getElementById('indirBtn');if(b)b.addEventListener('click',function(){indirBaslat(a)});
+zenginlestir(a)}
+function zenginlestir(a){
+if(!window.OEmbed)return;
+OEmbed.bilgiAl(a.link).then(function(g){
+if(sonAnaliz&&sonAnaliz.link!==a.link)return;
+var kart=document.querySelector('.sonuc-kart');if(!kart)return;
+if(g&&g.ok){
+a.baslik=g.baslik||a.baslik;a.kucukResim=g.kucukResim||a.kucukResim;
+var be=kart.querySelector('.video-baslik');if(be&&a.baslik){be.textContent=a.baslik;be.className='video-baslik'}
+if(a.kucukResim){var re=kart.querySelector('.kucuk-resim, .kucuk-resim-yok');
+if(re&&re.tagName!=='IMG'){var im=document.createElement('img');im.className='kucuk-resim';im.alt='Video küçük resmi';im.referrerPolicy='no-referrer';im.src=a.kucukResim;im.onerror=function(){var y=document.createElement('div');y.className='kucuk-resim-yok';y.textContent='Küçük resim yüklenemedi';im.replaceWith(y)};re.replaceWith(im)}else if(re){re.src=a.kucukResim}}
+var nl=kart.querySelector('.notlar');
+if(nl&&g.yazar){var yn=document.createElement('div');yn.className='not';yn.textContent='Yayıncı: '+g.yazar+' (oEmbed servisinden alındı)';nl.insertBefore(yn,nl.children[1]||null)}
+if(nl&&(a.sure===null)){var sn=document.createElement('div');sn.className='not';sn.textContent='Süre ve çözünürlük oEmbed servisinde bulunmaz; bu alanlar boş bırakıldı.';nl.appendChild(sn)}
+}else if(g&&g.mesaj){var n=kart.querySelector('.notlar');if(n){var dd=document.createElement('div');dd.className='not';dd.textContent='Meta bilgi alınamadı: '+g.mesaj;n.appendChild(dd)}}}
+}).catch(function(){})}
+function durumGoster(t,m,d){var e=document.getElementById('durum');if(!e)return;e.className='durum gorunur '+t;e.innerHTML=(d?'<span class="doner"></span>':'')+'<span>'+kacir(m)+'</span>'}
+function boyut(n){n=Number(n);if(!isFinite(n)||n<0)return '';if(n<1024)return n+' B';if(n<1048576)return (n/1024).toFixed(1)+' KB';return (n/1048576).toFixed(1)+' MB'}
+function indirBaslat(a){if(aktifIndirme)return;var ad=a.baslik||'video';durumGoster('bilgi','İndirme isteği gönderiliyor…',true);var d=null;if(typeof AbortController!=='undefined'){d=new AbortController();aktifIndirme=d}
+fetch(a.link,{method:'GET',mode:'cors',credentials:'omit',signal:d?d.signal:undefined}).then(function(r){if(!r.ok)throw new Error('Sunucu '+r.status+' yanıtı döndürdü');durumGoster('bilgi','İndiriliyor…',true);return r.blob()}).then(function(bl){var u=URL.createObjectURL(bl),l=document.createElement('a');l.href=u;l.download=ad;document.body.appendChild(l);l.click();l.remove();setTimeout(function(){URL.revokeObjectURL(u)},10000);durumGoster('basari','Dosya kaydedildi ('+boyut(bl.size)+').')}).catch(function(e){if(e&&e.name==='AbortError'){durumGoster('hata','İndirme iptal edildi.')}else{durumGoster('hata','İndirme başarısız: '+(e&&e.message?e.message:'bilinmeyen hata')+'. Kaynak CORS izni vermiyor olabilir.')}}).then(function(){aktifIndirme=null})}
+function calistir(){aktifIndirme=null;var a=C.analizEt(alan.value);sonAnaliz=a;if(a.ok)basariGoster(a);else hataGoster(a)}
 document.getElementById('analizEt').addEventListener('click',calistir);
 alan.addEventListener('input',function(){tml.classList.toggle('gorunur',alan.value.length>0)});
-tml.addEventListener('click',function(){alan.value='';tml.classList.remove('gorunur');sonuc.classList.remove('gorunur');sonuc.innerHTML='';vurgula(null);alan.focus()});
+tml.addEventListener('click',function(){alan.value='';tml.classList.remove('gorunur');sonucKutu.classList.remove('gorunur');sonucKutu.innerHTML='';vurgula(null);alan.focus()});
 document.querySelectorAll('[data-ornek]').forEach(function(b){b.addEventListener('click',function(){alan.value=b.getAttribute('data-ornek');tml.classList.add('gorunur');calistir()})});
 })();
 </script>
