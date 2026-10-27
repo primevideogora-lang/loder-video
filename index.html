@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>LODER VIDEO — Video Bağlantı Analizi</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23000'/%3E%3Crect x='12' y='12' width='40' height='40' rx='11' fill='%23a855f7'/%3E%3Cpath d='M28 23v18l15-9z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23000'/%3E%3Crect x='12' y='12' width='40' height='40' rx='11' fill='%23a855f7'/%3E%3Cpath d='M28 23v18l15-9z' fill='%23fff'/%3E%3C/svg%3E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LODER">
+<meta name="description" content="LODER VIDEO — video bağlantısı analiz aracı.">
+<style>
+:root{--siyah:#000;--yuzey:#0a0a0f;--yuzey-2:#111119;--cizgi:rgba(255,255,255,.08);--metin:#f2f2f7;--soluk:#8b8ba0;--mor:#a855f7;--mor-koyu:#7c3aed;--mavi:#22d3ee;--mavi-koyu:#0ea5e9;--kirmizi:#ff5c7a;--yesil:#34d399;--sari:#fbbf24;--r:16px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--siyah)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--metin);min-height:100dvh;padding:env(safe-area-inset-top) 0 calc(env(safe-area-inset-bottom) + 32px);overflow-x:hidden;line-height:1.5}
+body::before{content:"";position:fixed;inset:-30% -20% auto -20%;height:70vh;background:radial-gradient(48% 62% at 22% 18%,rgba(168,85,247,.22),transparent 68%),radial-gradient(44% 58% at 82% 8%,rgba(34,211,238,.18),transparent 66%);pointer-events:none;z-index:0}
+.sarmal{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:0 20px}
+header{padding:28px 0 20px;text-align:center}
+.logo{display:inline-flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.5px;font-size:1.42rem}
+.logo-isaret{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(135deg,var(--mor),var(--mavi));box-shadow:0 0 22px rgba(168,85,247,.45),0 0 34px rgba(34,211,238,.2)}
+.logo-isaret svg{width:21px;height:21px;fill:#fff}
+.logo b{background:linear-gradient(95deg,var(--mor),var(--mavi));-webkit-background-clip:text;background-clip:text;color:transparent}
+.slogan{margin:8px 0 0;color:var(--soluk);font-size:.82rem}
+.platformlar{display:flex;gap:8px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.platform{display:flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid var(--cizgi);border-radius:999px;background:rgba(255,255,255,.03);font-size:.74rem;font-weight:600;color:var(--soluk);transition:all .25s}
+.platform.aktif{color:var(--metin);border-color:rgba(168,85,247,.5);box-shadow:0 0 16px rgba(168,85,247,.22)}
+.platform svg{width:15px;height:15px}
+.kart{background:var(--yuzey);border:1px solid var(--cizgi);border-radius:var(--r);padding:18px;margin-top:22px}
+label.alan{display:block;font-size:.8rem;font-weight:600;color:var(--soluk);margin-bottom:8px}
+.giris-sarmal{position:relative}
+textarea#baglanti{width:100%;min-height:76px;resize:none;background:var(--yuzey-2);border:1px solid var(--cizgi);border-radius:12px;color:var(--metin);font-family:inherit;font-size:16px;padding:14px 44px 14px 14px}
+textarea#baglanti:focus{outline:none;border-color:rgba(168,85,247,.6);box-shadow:0 0 0 3px rgba(168,85,247,.13)}
+.temizle{position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;border:1px solid var(--cizgi);background:rgba(255,255,255,.04);color:var(--soluk);font-size:1rem;cursor:pointer;display:none;place-items:center}
+.temizle.gorunur{display:grid}
+.dugme{width:100%;margin-top:14px;padding:16px;border:none;border-radius:13px;font-family:inherit;font-size:1rem;font-weight:700;color:#fff;cursor:pointer;background:linear-gradient(95deg,var(--mor-koyu),var(--mavi-koyu));box-shadow:0 0 24px rgba(124,58,237,.35)}
+.dugme:active{transform:scale(.985)}
+.ornek{margin-top:12px;text-align:center;font-size:.74rem;color:var(--soluk)}
+.ornek button{background:none;border:none;color:var(--mavi);font-family:inherit;font-size:.74rem;font-weight:600;cursor:pointer;text-decoration:underline}
+#sonuc{margin-top:22px;display:none}
+#sonuc.gorunur{display:block;animation:belir .35s ease}
+@keyframes belir{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.sonuc-kart{background:var(--yuzey);border:1px solid var(--cizgi);border-radius:var(--r);overflow:hidden}
+.sonuc-ust{padding:14px 16px;border-bottom:1px solid var(--cizgi)}
+.rozet{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;font-size:.78rem;font-weight:700;color:var(--mavi);border:1px solid rgba(34,211,238,.42);background:rgba(34,211,238,.08)}
+.rozet svg{width:14px;height:14px}
+.onizleme{display:flex;gap:14px;padding:16px;align-items:flex-start}
+.kucuk-resim,.kucuk-resim-yok{width:112px;height:72px;flex:0 0 auto;border-radius:10px;background:var(--yuzey-2);border:1px solid var(--cizgi);object-fit:cover}
+.kucuk-resim-yok{border-style:dashed;display:grid;place-items:center;font-size:.62rem;color:var(--soluk);text-align:center;padding:6px}
+.baslik-alani{min-width:0;flex:1}
+.video-baslik{font-size:.95rem;font-weight:650;margin:0 0 6px;overflow-wrap:anywhere}
+.video-baslik.yok{color:var(--soluk);font-weight:500;font-style:italic}
+.kaynak-link{font-size:.74rem;color:var(--mavi);text-decoration:none;word-break:break-all}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 16px 16px}
+.meta-satir{background:var(--yuzey-2);border:1px solid var(--cizgi);border-radius:10px;padding:10px 12px}
+.meta-etiket{font-size:.66rem;color:var(--soluk);text-transform:uppercase;letter-spacing:.6px}
+.meta-deger{font-size:.86rem;font-weight:600;margin-top:3px;overflow-wrap:anywhere}
+.meta-deger.yok{color:#5c5c72;font-weight:500;font-style:italic;font-size:.78rem}
+.notlar,.indirme{padding:0 16px 16px}
+.notlar h3,.bilgi-serit h3{font-size:.68rem;text-transform:uppercase;letter-spacing:.7px;color:var(--soluk);margin:0 0 8px}
+.not{font-size:.79rem;color:#b9b9cc;margin-bottom:7px;padding-left:12px;border-left:2px solid var(--mor)}
+.indir-dugme{width:100%;padding:15px;border-radius:12px;border:none;font-family:inherit;font-size:.95rem;font-weight:700;color:#000;background:linear-gradient(95deg,var(--mavi),var(--mor));cursor:pointer}
+.indir-kapali{padding:15px;border-radius:12px;border:1px dashed rgba(251,191,36,.4);background:rgba(251,191,36,.05);color:var(--sari);font-size:.83rem;font-weight:600;text-align:center}
+.indir-not{font-size:.76rem;color:var(--soluk);margin-top:9px}
+.durum{display:none;align-items:center;gap:9px;padding:11px 14px;border-radius:11px;font-size:.8rem;font-weight:600;margin-top:11px}
+.durum.gorunur{display:flex}
+.durum.bilgi{background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.3);color:var(--mavi)}
+.durum.hata{background:rgba(255,92,122,.08);border:1px solid rgba(255,92,122,.3);color:var(--kirmizi)}
+.durum.basari{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.3);color:var(--yesil)}
+.doner{width:15px;height:15px;border:2px solid rgba(255,255,255,.25);border-top-color:currentColor;border-radius:50%;animation:don .7s linear infinite}
+@keyframes don{to{transform:rotate(360deg)}}
+.hata-kutu{background:rgba(255,92,122,.07);border:1px solid rgba(255,92,122,.32);border-radius:var(--r);padding:16px}
+.hata-baslik{font-weight:700;font-size:.92rem;color:var(--kirmizi);margin-bottom:8px}
+.hata-mesaj{font-size:.85rem;color:#d6d6e2;margin:0 0 10px}
+.hata-cozum{font-size:.79rem;color:#a9a9bd;margin:0;padding:10px 12px;background:rgba(255,255,255,.03);border-radius:9px;border-left:2px solid var(--mor)}
+.bilgi-serit{margin-top:26px;padding:14px 16px;background:rgba(255,255,255,.025);border:1px solid var(--cizgi);border-radius:13px}
+.bilgi-serit p{margin:0 0 7px;font-size:.76rem;color:#9d9db4}
+.bilgi-serit b{color:#c9c9dd}
+footer{text-align:center;padding:24px 0 10px;font-size:.68rem;color:#4e4e63}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="sarmal">
+<header>
+<div class="logo"><span class="logo-isaret"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span><span><b>LODER</b> VIDEO</span></div>
+<p class="slogan">Video bağlantısı analiz aracı</p>
+<div class="platformlar">
+<span class="platform" data-p="tiktok"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 1 1-1.84-2.48V9.77a5.72 5.72 0 1 0 4.93 5.66V8.87a7.35 7.35 0 0 0 4.3 1.38V7.16a4.28 4.28 0 0 1-3.24-1.34z"/></svg>TikTok</span>
+<span class="platform" data-p="youtube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.85-.49-5.7a2.98 2.98 0 0 0-2.1-2.1C18.56 3.7 12 3.7 12 3.7s-6.56 0-8.41.5a2.98 2.98 0 0 0-2.1 2.1C1 8.15 1 12 1 12s0 3.85.49 5.7a2.98 2.98 0 0 0 2.1 2.1c1.85.5 8.41.5 8.41.5s6.56 0 8.41-.5a2.98 2.98 0 0 0 2.1-2.1C23 15.85 23 12 23 12zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/></svg>YouTube</span>
+<span class="platform" data-p="instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>Instagram</span>
+<span class="platform" data-p="direct"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z"/></svg>MP4 / WebM</span>
+</div>
+</header>
+<main>
+<section class="kart">
+<label class="alan" for="baglanti">Video bağlantısı</label>
+<div class="giris-sarmal">
+<textarea id="baglanti" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Bağlantıyı buraya yapıştırın…"></textarea>
+<button class="temizle" id="temizle" type="button" aria-label="Temizle">×</button>
+</div>
+<button class="dugme" id="analizEt" type="button">Analiz Et</button>
+<p class="ornek">Örnek dene:
+<button type="button" data-ornek="https://youtu.be/bs7J4bCEFFY?si=nQrzRyOFOjGMfd-P">YouTube</button> ·
+<button type="button" data-ornek="https://www.instagram.com/reel/De-Lt0WOtF9/?psln=YXo5d2hyaW00d2Ji">Instagram</button> ·
+<button type="button" data-ornek="https://vt.tiktok.com/ZSgqUeLNC/">TikTok</button></p>
+</section>
+<section id="sonuc" aria-live="polite"></section>
+<section class="bilgi-serit">
+<h3>Bu sürüm ne yapıyor</h3>
+<p><b>Gerçek:</b> Bağlantı algılama, platform tespiti, URL doğrulaması ve Türkçe hata yönetimi.</p>
+<p><b>Gerçek:</b> Doğrudan MP4/WebM bağlantılarında tarayıcı indirmesi denenir; hata çıkarsa gerçek hata gösterilir.</p>
+<p><b>Yapılandırılmamış:</b> YouTube, TikTok ve Instagram için video bilgisi ve indirme. Resmî platform API'leri üçüncü taraf indirmeye izin vermiyor. Uydurma bilgi gösterilmez.</p>
+</section>
+</main>
+<footer>LODER VIDEO · Bağlantı analiz aracı<br>Filigran kaldırma, erişim kontrolü aşma ve izinsiz indirme desteklenmez.</footer>
+</div>
+<script>
+(function(){'use strict';
+var ENGELLI=['localhost','localhost.localdomain','ip6-localhost','ip6-loopback','metadata','instance-data','metadata.google.internal','metadata.goog'];
+var ONEK=['10.','127.','169.254.','192.168.','0.','172.16.','172.17.','172.18.','172.19.','172.20.','172.21.','172.22.','172.23.','172.24.','172.25.','172.26.','172.27.','172.28.','172.29.','172.30.','172.31.'];
+var MEDYA=['.mp4','.webm','.m4v','.mov','.ogv'];
+var AD={youtube:'YouTube',tiktok:'TikTok',instagram:'Instagram',direct:'Doğrudan Medya'};
+var YTID=/^[A-Za-z0-9_-]{11}$/;
+function hata(k,m,c){return{ok:false,kod:k,mesaj:m,cozum:c||null}}
+function guvenli(h){if(!h)return false;h=h.toLowerCase().replace(/^\[|\]$/g,'');if(ENGELLI.indexOf(h)!==-1)return false;if(h.indexOf('.')===-1)return false;if(/\.local$|\.localhost$/.test(h))return false;for(var i=0;i<ONEK.length;i++)if(h.indexOf(ONEK[i])===0)return false;if(/^(::1|fc|fd|fe80)/.test(h))return false;if(/^(0x[0-9a-f]+|\d{8,})$/i.test(h))return false;return true}
+function linkCikar(g){if(typeof g!=='string')return'';var t=g.trim().replace(/^[\s"'<]+|[\s"'>]+$/g,'');if(!t)return'';var m=t.match(/https?:\/\/[^\s<>"')]+/i);return m?m[0]:t}
+function hostEsit(h,l){for(var i=0;i<l.length;i++){var d=l[i];if(h===d||h.slice(-(d.length+1))==='.'+d)return true}return false}
+function ytId(u){var h=u.hostname.toLowerCase(),y=u.pathname;if(hostEsit(h,['youtu.be'])){var k=y.replace(/^\/+/,'').split('/')[0];return YTID.test(k)?k:null}var v=u.searchParams.get('v');if(v&&YTID.test(v))return v;var o=['/embed/','/v/','/shorts/','/live/','/e/'];for(var i=0;i<o.length;i++)if(y.indexOf(o[i])===0){var id=y.slice(o[i].length).split('/')[0];if(YTID.test(id))return id}return null}
+function medyaMi(y){var t=String(y||'').toLowerCase();for(var i=0;i<MEDYA.length;i++)if(t.slice(-MEDYA[i].length)===MEDYA[i])return MEDYA[i];return null}
+function algila(u){var h=u.hostname.toLowerCase(),y=u.pathname;
+if(hostEsit(h,['youtube.com','youtu.be','youtube-nocookie.com'])){var v=ytId(u);if(v)return{ok:true,platform:'youtube',videoId:v,tur:'video'};return hata('VIDEO_DEGIL','YouTube bağlantısında video kimliği bulunamadı.','Bir YouTube videosunun bağlantısının tamamını yapıştırın.')}
+if(hostEsit(h,['tiktok.com'])){if(h==='vt.tiktok.com'||h==='vm.tiktok.com'){var k=y.replace(/^\/+|\/+$/g,'');if(!/^[A-Za-z0-9]{6,20}$/.test(k))return hata('GECERSIZ_KISA_LINK','TikTok kısa bağlantısı tanınamadı.','Bağlantıyı TikTok paylaş menüsünden yeniden kopyalayın.');return{ok:true,platform:'tiktok',videoId:k,tur:'kisa_link',kisaLink:true}}var m=y.match(/\/video\/(\d{6,25})/);if(m)return{ok:true,platform:'tiktok',videoId:m[1],tur:'video'};var p=y.match(/\/photo\/(\d{6,25})/);if(p)return{ok:true,platform:'tiktok',videoId:p[1],tur:'fotograf'};return hata('VIDEO_DEGIL','TikTok bağlantısında video numarası bulunamadı.','Video bağlantısının tamamını kopyalayın.')}
+if(hostEsit(h,['instagram.com','instagr.am'])){var g=y.match(/^\/(reel|reels|p|tv)\/([A-Za-z0-9_-]{5,20})/i);if(g){var t=g[1].toLowerCase();return{ok:true,platform:'instagram',videoId:g[2],tur:(t==='reel'||t==='reels')?'reel':(t==='tv'?'igtv':'gonderi')}}return hata('VIDEO_DEGIL','Instagram bağlantısında gönderi veya Reels adresi bulunamadı.','Bir Reels veya gönderi bağlantısı yapıştırın.')}
+if(medyaMi(y))return{ok:true,platform:'direct',videoId:null,tur:'dosya'};
+return hata('DESTEKLENMEYEN_PLATFORM','Bu platform desteklenmiyor: '+h,'Yalnızca TikTok, YouTube, Instagram ve doğrudan MP4/WebM bağlantıları desteklenir.')}
+function analizEt(girdi){var l=linkCikar(girdi);if(!l)return hata('BOS','Bağlantı alanı boş.','Bir TikTok, YouTube, Instagram veya doğrudan video bağlantısı yapıştırın.');if(!/^[a-z][a-z0-9+.-]*:/i.test(l))l='https://'+l;var u;try{u=new URL(l)}catch(e){return hata('GECERSIZ_URL','Bu geçerli bir bağlantı değil.','Bağlantıyı tekrar kopyalayıp deneyin.')}if(u.protocol!=='http:'&&u.protocol!=='https:')return hata('GECERSIZ_SEMA','Bu bağlantı türü desteklenmiyor.','Yalnızca http ve https bağlantıları kabul edilir.');if(!guvenli(u.hostname))return hata('GUVENSIZ_HEDEF','Bu adres güvenlik nedeniyle reddedildi.','Yerel ağ ve özel adresler engellenir.');
+var d=algila(u);if(!d.ok)return d;
+var s={ok:true,platform:d.platform,platformAdi:AD[d.platform],domain:u.hostname.replace(/^www\./,''),link:u.href,videoId:d.videoId,tur:d.tur,baslik:null,kucukResim:null,sure:null,cozunurluk:null,notlar:[]};
+if(d.platform==='direct'){try{s.baslik=decodeURIComponent(u.pathname.split('/').pop())||'video'}catch(e){s.baslik='video'}s.notlar.push('Bu bağlantı bir medya dosyasını doğrudan gösteriyor; indirme tarayıcı üzerinden denenebilir.');s.notlar.push('Sunucu CORS izni vermiyorsa tarayıcı indirmeyi engeller; bu durumda gerçek hata gösterilir.')}
+else if(d.platform==='youtube'){s.kucukResim='https://i.ytimg.com/vi/'+d.videoId+'/hqdefault.jpg';s.notlar.push('Küçük resim YouTube genel resim adresinden gelir; erişilemezse gösterilmez.');s.notlar.push('Başlık, süre ve çözünürlük için YouTube Data API anahtarı gerekir — yapılandırılmadı.')}
+else if(d.platform==='tiktok'){s.notlar.push(d.kisaLink?'TikTok kısa bağlantısı algılandı. Gerçek video kimliği yönlendirme çözümlenince elde edilir — bu adım sunucu gerektirir.':'Video numarası bağlantıdan okundu.');s.notlar.push('Başlık, küçük resim ve süre için TikTok API entegrasyonu gerekir — yapılandırılmadı.')}
+else{s.notlar.push('Instagram gönderi kodu bağlantıdan okundu.');s.notlar.push('Başlık, küçük resim ve süre için Instagram Graph API entegrasyonu gerekir — yapılandırılmadı.')}
+return s}
+function kacir(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+var alan=document.getElementById('baglanti'),sonuc=document.getElementById('sonuc'),tml=document.getElementById('temizle'),pl=document.querySelectorAll('.platform'),mesgul=false;
+function vurgula(p){pl.forEach(function(e){e.classList.toggle('aktif',e.getAttribute('data-p')===p)})}
+function meta(e,v){var b=(v===null||v===undefined||v==='');return'<div class="meta-satir"><div class="meta-etiket">'+kacir(e)+'</div><div class="meta-deger'+(b?' yok':'')+'">'+(b?'Alınamadı':kacir(v))+'</div></div>'}
+var TUR={video:'Video',reel:'Reels',gonderi:'Gönderi',igtv:'IGTV',fotograf:'Fotoğraf gönderisi',kisa_link:'Kısa bağlantı',dosya:'Medya dosyası'};
+function goster(a){
+if(!a.ok){vurgula(null);sonuc.innerHTML='<div class="hata-kutu"><div class="hata-baslik">⚠ Bağlantı analiz edilemedi</div><p class="hata-mesaj">'+kacir(a.mesaj)+'</p>'+(a.cozum?'<p class="hata-cozum"><b>Çözüm:</b> '+kacir(a.cozum)+'</p>':'')+'</div>';sonuc.classList.add('gorunur');return}
+var img=a.kucukResim?'<img class="kucuk-resim" src="'+kacir(a.kucukResim)+'" alt="Küçük resim" referrerpolicy="no-referrer" onerror="this.outerHTML=\'<div class=kucuk-resim-yok>Küçük resim yüklenemedi</div>\'">':'<div class="kucuk-resim-yok">Küçük resim mevcut değil</div>';
+var h='<div class="sonuc-kart"><div class="sonuc-ust"><span class="rozet">✓ '+kacir(a.platformAdi)+'</span></div>';
+h+='<div class="onizleme">'+img+'<div class="baslik-alani">'+(a.baslik?'<p class="video-baslik">'+kacir(a.baslik)+'</p>':'<p class="video-baslik yok">Başlık alınamadı</p>')+'<a class="kaynak-link" href="'+kacir(a.link)+'" target="_blank" rel="noopener noreferrer">'+kacir(a.link)+'</a></div></div>';
+h+='<div class="meta">'+meta('Platform',a.platformAdi)+meta('Tür',TUR[a.tur]||a.tur)+meta('Süre',a.sure)+meta('Çözünürlük',a.cozunurluk)+meta('Video kimliği',a.videoId)+meta('Alan adı',a.domain)+'</div>';
+h+='<div class="notlar"><h3>Analiz notları</h3>';a.notlar.forEach(function(n){h+='<div class="not">'+kacir(n)+'</div>'});h+='</div><div class="indirme">';
+if(a.platform==='direct'){h+='<button class="indir-dugme" id="indirBtn" type="button">İndir</button><p class="indir-not">Tarayıcı üzerinden doğrudan indirme denenecek.</p>'}
+else{h+='<div class="indir-kapali">İndirme yapılandırılmamış</div><p class="indir-not">'+kacir(a.platformAdi)+' için indirme entegrasyonu bu kurulumda mevcut değil. Resmî platform API\'leri üçüncü taraf video indirmeye izin vermiyor.</p>'}
+h+='<div class="durum" id="durum"></div></div></div>';
+sonuc.innerHTML=h;sonuc.classList.add('gorunur');vurgula(a.platform);
+var b=document.getElementById('indirBtn');if(b)b.addEventListener('click',function(){indir(a)})}
+function durum(t,m,d){var e=document.getElementById('durum');if(!e)return;e.className='durum gorunur '+t;e.innerHTML=(d?'<span class="doner"></span>':'')+'<span>'+kacir(m)+'</span>'}
+function boyut(n){n=Number(n);if(!isFinite(n)||n<0)return'';if(n<1024)return n+' B';if(n<1048576)return(n/1024).toFixed(1)+' KB';return(n/1048576).toFixed(1)+' MB'}
+function indir(a){if(mesgul)return;mesgul=true;durum('bilgi','İndirme isteği gönderiliyor…',true);
+fetch(a.link,{mode:'cors',credentials:'omit'}).then(function(r){if(!r.ok)throw new Error('Sunucu '+r.status+' yanıtı döndürdü');durum('bilgi','İndiriliyor…',true);return r.blob()}).then(function(bl){var u=URL.createObjectURL(bl),l=document.createElement('a');l.href=u;l.download=a.baslik||'video';document.body.appendChild(l);l.click();l.remove();setTimeout(function(){URL.revokeObjectURL(u)},10000);durum('basari','Dosya kaydedildi ('+boyut(bl.size)+').')}).catch(function(e){durum('hata','İndirme başarısız: '+(e&&e.message?e.message:'bilinmeyen hata')+'. Kaynak CORS izni vermiyor olabilir.')}).then(function(){mesgul=false})}
+function calistir(){goster(analizEt(alan.value))}
+document.getElementById('analizEt').addEventListener('click',calistir);
+alan.addEventListener('input',function(){tml.classList.toggle('gorunur',alan.value.length>0)});
+tml.addEventListener('click',function(){alan.value='';tml.classList.remove('gorunur');sonuc.classList.remove('gorunur');sonuc.innerHTML='';vurgula(null);alan.focus()});
+document.querySelectorAll('[data-ornek]').forEach(function(b){b.addEventListener('click',function(){alan.value=b.getAttribute('data-ornek');tml.classList.add('gorunur');calistir()})});
+})();
+</script>
+</body>
+</html>
